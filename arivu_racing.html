@@ -16,7 +16,7 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background-color: #080a12;
+      background-color: #070913;
       font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
       color: #fff;
     }
@@ -61,7 +61,7 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      background: rgba(15, 23, 42, 0.85);
+      background: rgba(15, 23, 42, 0.88);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       padding: 7px 18px;
@@ -100,7 +100,7 @@
       gap: 12px;
     }
     .stat-pill {
-      background: rgba(15, 23, 42, 0.85);
+      background: rgba(15, 23, 42, 0.88);
       backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 12px;
@@ -137,7 +137,7 @@
       gap: 10px;
     }
     .icon-btn {
-      background: rgba(15, 23, 42, 0.85);
+      background: rgba(15, 23, 42, 0.88);
       border: 1.5px solid rgba(0, 240, 255, 0.5);
       color: #fff;
       width: 44px;
@@ -156,10 +156,45 @@
       box-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
     }
 
+    /* Center Turn Warning Indicator (Dynamic HUD Alert) */
+    .turn-warning-box {
+      position: absolute;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      align-items: center;
+      gap: 14px;
+      background: rgba(10, 14, 26, 0.95);
+      border: 2px solid #ffd700;
+      padding: 10px 28px;
+      border-radius: 40px;
+      box-shadow: 0 0 35px rgba(255, 215, 0, 0.7);
+      animation: pulseAlert 0.8s infinite alternate;
+      pointer-events: none;
+    }
+    @keyframes pulseAlert {
+      from { transform: translateX(-50%) scale(0.96); box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+      to { transform: translateX(-50%) scale(1.04); box-shadow: 0 0 45px rgba(255, 215, 0, 0.9); }
+    }
+    .turn-arrow-icon {
+      font-size: 26px;
+      font-weight: 900;
+      color: #ffd700;
+      text-shadow: 0 0 10px #ffd700;
+    }
+    .turn-warning-text {
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      color: #fff;
+      text-transform: uppercase;
+    }
+
     /* Toast Notifications */
     .toast-container {
       position: absolute;
-      top: 90px;
+      top: 135px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
@@ -227,7 +262,7 @@
     .radar-box {
       width: 145px;
       height: 145px;
-      background: rgba(10, 15, 30, 0.9);
+      background: rgba(10, 15, 30, 0.92);
       border: 1.5px solid rgba(0, 240, 255, 0.5);
       border-radius: 18px;
       padding: 6px;
@@ -250,12 +285,12 @@
       letter-spacing: 1px;
     }
 
-    /* Dashboard */
+    /* Dashboard Cluster */
     .dashboard-cluster {
       display: flex;
       align-items: flex-end;
       gap: 20px;
-      background: rgba(15, 23, 42, 0.9);
+      background: rgba(15, 23, 42, 0.92);
       border: 1.5px solid rgba(0, 240, 255, 0.4);
       border-radius: 22px;
       padding: 14px 24px;
@@ -396,7 +431,7 @@
     .controls-hint {
       display: flex;
       gap: 14px;
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.65);
       padding: 7px 16px;
       border-radius: 20px;
       font-size: 11px;
@@ -682,6 +717,13 @@
       </div>
     </div>
 
+    <!-- Dynamic Turn Warning HUD Alert -->
+    <div class="turn-warning-box" id="hud-turn-alert">
+      <span class="turn-arrow-icon" id="turn-arrow-left">◀◀◀</span>
+      <span class="turn-warning-text" id="turn-warning-text">SHARP RIGHT IN 80M</span>
+      <span class="turn-arrow-icon" id="turn-arrow-right">▶▶▶</span>
+    </div>
+
     <!-- Center Alerts -->
     <div class="toast-container" id="toast-box"></div>
     <div class="drift-alert" id="drift-alert">DRIFT +0</div>
@@ -882,7 +924,6 @@
           this.masterGain.gain.setValueAtTime(0.75, this.ctx.currentTime);
           this.masterGain.connect(this.ctx.destination);
 
-          // Engine Sound: Dual Sawtooth / Triangle
           this.engineGain = this.ctx.createGain();
           this.engineGain.gain.setValueAtTime(0.08, this.ctx.currentTime);
 
@@ -1031,10 +1072,10 @@
         this.bgmGain.connect(this.masterGain);
 
         const bassNotes = [
-          146.83, 146.83, 146.83, 146.83, // D3
-          174.61, 174.61, 174.61, 174.61, // F3
-          130.81, 130.81, 130.81, 130.81, // C3
-          196.00, 196.00, 196.00, 196.00  // G3
+          146.83, 146.83, 146.83, 146.83,
+          174.61, 174.61, 174.61, 174.61,
+          130.81, 130.81, 130.81, 130.81,
+          196.00, 196.00, 196.00, 196.00
         ];
 
         const stepTime = 125;
@@ -1103,7 +1144,7 @@
     const sound = new SoundEngine();
 
     /* =========================================================================
-       TEXTURE BUILDER (Decals, Billboards, Road, Curbs)
+       TEXTURE BUILDER (Decals, Billboards, Road, Turn Signs)
        ========================================================================= */
     const textureLib = {
       hoodDecal: null,
@@ -1113,7 +1154,10 @@
       billboardC: null,
       billboardD: null,
       curbTexture: null,
-      roadTexture: null
+      roadTexture: null,
+      barrierTexture: null,
+      chevronRight: null,
+      chevronLeft: null
     };
 
     function loadCustomTextures() {
@@ -1127,18 +1171,15 @@
           hoodCanvas.height = 512;
           const hCtx = hoodCanvas.getContext('2d');
 
-          // Dark Carbon base
           hCtx.fillStyle = '#0f172a';
           hCtx.fillRect(0, 0, 512, 512);
 
-          // Dual Racing Stripes
           hCtx.fillStyle = '#00f0ff';
           hCtx.fillRect(230, 0, 52, 512);
           hCtx.fillStyle = '#ff007b';
           hCtx.fillRect(195, 0, 22, 512);
           hCtx.fillRect(295, 0, 22, 512);
 
-          // Golden Circular Badge with Arivu
           hCtx.save();
           hCtx.beginPath();
           hCtx.arc(256, 256, 180, 0, Math.PI * 2);
@@ -1151,7 +1192,6 @@
           hCtx.drawImage(arivuImg, 100, 100, 312, 312);
           hCtx.restore();
 
-          // Badge Text
           hCtx.fillStyle = '#ffd700';
           hCtx.font = 'bold 24px sans-serif';
           hCtx.textAlign = 'center';
@@ -1207,7 +1247,7 @@
             '#1a102f'
           );
 
-          // 4. Procedural Curb Texture
+          // 4. Curbs
           const curbCanvas = document.createElement('canvas');
           curbCanvas.width = 64;
           curbCanvas.height = 64;
@@ -1220,41 +1260,63 @@
           textureLib.curbTexture.wrapS = THREE.RepeatWrapping;
           textureLib.curbTexture.wrapT = THREE.RepeatWrapping;
 
-          // 5. Procedural High-Visibility Road Texture
+          // 5. Road Surface (Bright high-visibility asphalt)
           const roadCanvas = document.createElement('canvas');
           roadCanvas.width = 512;
           roadCanvas.height = 512;
           const rCtx = roadCanvas.getContext('2d');
 
-          // Rich slate asphalt
-          rCtx.fillStyle = '#222736';
+          rCtx.fillStyle = '#262d3d';
           rCtx.fillRect(0, 0, 512, 512);
 
-          // Subtle asphalt texture speckles
-          for (let i = 0; i < 4000; i++) {
-            rCtx.fillStyle = Math.random() > 0.5 ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.15)';
+          for (let i = 0; i < 5000; i++) {
+            rCtx.fillStyle = Math.random() > 0.5 ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.18)';
             rCtx.fillRect(Math.random() * 512, Math.random() * 512, 2, 2);
           }
 
-          // Outer Solid White Road Lines
+          // Outer White Edge Lines
           rCtx.fillStyle = '#ffffff';
-          rCtx.fillRect(24, 0, 16, 512);
-          rCtx.fillRect(472, 0, 16, 512);
+          rCtx.fillRect(20, 0, 18, 512);
+          rCtx.fillRect(474, 0, 18, 512);
 
-          // Inner Cyan Lane Guide Lines
-          rCtx.fillStyle = 'rgba(0, 240, 255, 0.4)';
-          rCtx.fillRect(150, 0, 4, 512);
-          rCtx.fillRect(358, 0, 4, 512);
+          // Inner Cyan Lanes
+          rCtx.fillStyle = 'rgba(0, 240, 255, 0.45)';
+          rCtx.fillRect(150, 0, 5, 512);
+          rCtx.fillRect(357, 0, 5, 512);
 
-          // Bright Yellow Dashed Center Line
+          // Bright Yellow Centerline
           rCtx.fillStyle = '#ffd700';
           for (let y = 0; y < 512; y += 64) {
-            rCtx.fillRect(250, y + 10, 12, 40);
+            rCtx.fillRect(248, y + 10, 16, 42);
           }
 
           textureLib.roadTexture = new THREE.CanvasTexture(roadCanvas);
           textureLib.roadTexture.wrapS = THREE.RepeatWrapping;
           textureLib.roadTexture.wrapT = THREE.RepeatWrapping;
+
+          // 6. Concrete Barrier Texture (with diagonal warning stripes)
+          const barCanvas = document.createElement('canvas');
+          barCanvas.width = 256;
+          barCanvas.height = 128;
+          const bCtx = barCanvas.getContext('2d');
+          bCtx.fillStyle = '#334155';
+          bCtx.fillRect(0, 0, 256, 128);
+          // Red and white base skirting
+          for (let x = 0; x < 256; x += 32) {
+            bCtx.fillStyle = (x / 32) % 2 === 0 ? '#ff0055' : '#ffffff';
+            bCtx.fillRect(x, 90, 32, 38);
+          }
+          // Top glowing cyan edge
+          bCtx.fillStyle = '#00f0ff';
+          bCtx.fillRect(0, 0, 256, 14);
+
+          textureLib.barrierTexture = new THREE.CanvasTexture(barCanvas);
+          textureLib.barrierTexture.wrapS = THREE.RepeatWrapping;
+          textureLib.barrierTexture.wrapT = THREE.RepeatWrapping;
+
+          // 7. Chevron Turn Signs (Right & Left)
+          textureLib.chevronRight = createChevronCanvas('right');
+          textureLib.chevronLeft = createChevronCanvas('left');
 
           resolve();
         };
@@ -1314,6 +1376,50 @@
       return new THREE.CanvasTexture(canvas);
     }
 
+    function createChevronCanvas(direction = 'right') {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 256;
+      const ctx = canvas.getContext('2d');
+
+      // High contrast dark yellow frame
+      ctx.fillStyle = '#111827';
+      ctx.fillRect(0, 0, 512, 256);
+      ctx.lineWidth = 12;
+      ctx.strokeStyle = '#ffd700';
+      ctx.strokeRect(6, 6, 500, 244);
+
+      // Draw 3 Big Glowing Chevron Arrows
+      ctx.fillStyle = '#ffd700';
+      const arrowCount = 3;
+      const step = 140;
+      const startX = 70;
+
+      for (let i = 0; i < arrowCount; i++) {
+        const cx = startX + i * step;
+        ctx.beginPath();
+        if (direction === 'right') {
+          ctx.moveTo(cx, 40);
+          ctx.lineTo(cx + 60, 128);
+          ctx.lineTo(cx, 216);
+          ctx.lineTo(cx + 35, 216);
+          ctx.lineTo(cx + 95, 128);
+          ctx.lineTo(cx + 35, 40);
+        } else {
+          ctx.moveTo(cx + 95, 40);
+          ctx.lineTo(cx + 35, 128);
+          ctx.lineTo(cx + 95, 216);
+          ctx.lineTo(cx + 60, 216);
+          ctx.lineTo(cx, 128);
+          ctx.lineTo(cx + 60, 40);
+        }
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      return new THREE.CanvasTexture(canvas);
+    }
+
     /* =========================================================================
        THREE.JS GRAPHICS SETUP
        ========================================================================= */
@@ -1329,23 +1435,21 @@
       renderer.shadowMap.enabled = true;
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.25;
+      renderer.toneMappingExposure = 1.3;
 
       scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x0c1022);
-      scene.fog = new THREE.FogExp2(0x0c1022, 0.0016);
+      scene.background = new THREE.Color(0x0a0e1e);
+      scene.fog = new THREE.FogExp2(0x0a0e1e, 0.0015);
 
       camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.2, 2200);
       clock = new THREE.Clock();
 
       buildSkybox();
 
-      // Rich Ambient Lighting
       const hemiLight = new THREE.HemisphereLight(0x7dd3fc, 0x581c87, 1.4);
       scene.add(hemiLight);
 
-      // Primary Warm Sun Light
-      const sunLight = new THREE.DirectionalLight(0xffa200, 1.6);
+      const sunLight = new THREE.DirectionalLight(0xffa200, 1.7);
       sunLight.position.set(220, 280, 180);
       sunLight.castShadow = true;
       sunLight.shadow.mapSize.width = 2048;
@@ -1359,8 +1463,7 @@
       sunLight.shadow.bias = -0.0004;
       scene.add(sunLight);
 
-      // Secondary Cool Fill Light
-      const fillLight = new THREE.DirectionalLight(0x00f0ff, 0.7);
+      const fillLight = new THREE.DirectionalLight(0x00f0ff, 0.8);
       fillLight.position.set(-200, 150, -200);
       scene.add(fillLight);
 
@@ -1368,14 +1471,12 @@
     }
 
     function buildSkybox() {
-      // Synthwave Sunset Giant Sun
       const sunGeo = new THREE.CircleGeometry(130, 32);
       const sunMat = new THREE.MeshBasicMaterial({ color: 0xff007b, side: THREE.DoubleSide });
       const sunMesh = new THREE.Mesh(sunGeo, sunMat);
       sunMesh.position.set(0, 90, -950);
       scene.add(sunMesh);
 
-      // Distant Low-Poly Mountains
       const mtnGeo = new THREE.ConeGeometry(90, 170, 4);
       const mtnMat = new THREE.MeshStandardMaterial({ color: 0x181e3a, roughness: 0.9, flatShading: true });
       for (let i = 0; i < 36; i++) {
@@ -1388,7 +1489,6 @@
         scene.add(mtn);
       }
 
-      // Distant Cyber City Skyline Silhouette
       const bldgGeo = new THREE.BoxGeometry(32, 1, 32);
       const bldgMat = new THREE.MeshStandardMaterial({ color: 0x0c1024, roughness: 0.8 });
       for (let i = 0; i < 60; i++) {
@@ -1409,14 +1509,25 @@
     }
 
     /* =========================================================================
-       TRACK & CIRCUIT SPLINE GENERATOR
+       TRACK & CONTINUOUS SOLID BARRICADES & TURN SIGNS
        ========================================================================= */
     let trackCurve;
     let trackLength = 0;
     const trackWidth = 24;
+    const maxRoadLateral = 10.5; // IMPASSABLE Barricade Boundary
     const trackSegments = 900;
     const trackSamples = [];
     const billboardMeshList = [];
+
+    // Identified major turns along track spline
+    const turnZones = [
+      { tStart: 0.08, tApex: 0.15, tEnd: 0.22, dir: 'right', name: 'TURN 1: SPEEDWAY RIGHT', warningDist: 80 },
+      { tStart: 0.26, tApex: 0.32, tEnd: 0.37, dir: 'right', name: 'TURN 2: DOWNHILL CURVE', warningDist: 75 },
+      { tStart: 0.40, tApex: 0.45, tEnd: 0.49, dir: 'left', name: 'CHICANE: QUICK SLIDE', warningDist: 70 },
+      { tStart: 0.50, tApex: 0.56, tEnd: 0.62, dir: 'right', name: 'HAIRPIN: BRAKE & DRIFT!', warningDist: 90 },
+      { tStart: 0.68, tApex: 0.74, tEnd: 0.80, dir: 'left', name: 'HIGH SPEED BANKING LEFT', warningDist: 85 },
+      { tStart: 0.88, tApex: 0.94, tEnd: 0.98, dir: 'left', name: 'FINAL CHICANE TO HOME', warningDist: 70 }
+    ];
 
     function buildTrack() {
       const rawPoints = [
@@ -1456,7 +1567,7 @@
         trackSamples.push({ t, pt, tangent, binormal });
       }
 
-      // 1. Road Surface Mesh
+      // 1. Road Surface Mesh (Elevated cleanly at y + 0.06)
       const roadGeo = new THREE.BufferGeometry();
       const vertices = [];
       const uvs = [];
@@ -1469,8 +1580,8 @@
         const pLeft = s.pt.clone().sub(s.binormal.clone().multiplyScalar(halfW));
         const pRight = s.pt.clone().add(s.binormal.clone().multiplyScalar(halfW));
 
-        vertices.push(pLeft.x, pLeft.y + 0.05, pLeft.z);
-        vertices.push(pRight.x, pRight.y + 0.05, pRight.z);
+        vertices.push(pLeft.x, pLeft.y + 0.06, pLeft.z);
+        vertices.push(pRight.x, pRight.y + 0.06, pRight.z);
 
         const vCoord = (i / trackSegments) * 80;
         uvs.push(0, vCoord);
@@ -1491,32 +1602,32 @@
 
       const roadMat = new THREE.MeshStandardMaterial({
         map: textureLib.roadTexture,
-        roughness: 0.55,
+        roughness: 0.5,
         metalness: 0.15
       });
       const roadMesh = new THREE.Mesh(roadGeo, roadMat);
       roadMesh.receiveShadow = true;
       scene.add(roadMesh);
 
-      // 2. Curbs
+      // 2. Curbs (Flush with road)
       buildCurbs();
 
-      // 3. Guardrails
-      buildGuardrails();
+      // 3. CONTINUOUS HEAVY-DUTY 3D BARRICADES (Protects entire track and banner positions!)
+      buildHeavyDutyBarricades();
 
-      // 4. Start / Finish Gantry
-      buildStartFinishGantry();
+      // 4. NEON CHEVRON TURN SIGNS (On all corners)
+      buildTurnSigns();
 
-      // 5. Track Arches
-      buildTrackArches();
+      // 5. Overhead Gantries with Turn Warnings
+      buildTrackGantries();
 
-      // 6. Giant Roadside Billboards with Arivu
+      // 6. Roadside Billboards with Arivu (Safely positioned behind barriers!)
       buildRoadsideBillboards();
 
       // 7. Ground Terrain
       buildTerrain();
 
-      // 8. Trees & Street Lights
+      // 8. Palm Trees & Corner Floodlights
       buildStreetProps();
     }
 
@@ -1531,14 +1642,14 @@
       for (let side = -1; side <= 1; side += 2) {
         for (let i = 0; i <= trackSegments; i++) {
           const s = trackSamples[i];
-          const innerDist = (trackWidth / 2) * side;
-          const outerDist = innerDist + curbWidth * side;
+          const innerDist = (trackWidth / 2 - 0.2) * side;
+          const outerDist = (trackWidth / 2 + curbWidth) * side;
 
           const pInner = s.pt.clone().add(s.binormal.clone().multiplyScalar(innerDist));
           const pOuter = s.pt.clone().add(s.binormal.clone().multiplyScalar(outerDist));
 
           vertices.push(pInner.x, pInner.y + 0.08, pInner.z);
-          vertices.push(pOuter.x, pOuter.y + 0.06, pOuter.z);
+          vertices.push(pOuter.x, pOuter.y + 0.07, pOuter.z);
 
           const vCoord = (i / trackSegments) * 200;
           uvs.push(0, vCoord);
@@ -1568,68 +1679,239 @@
       scene.add(curbMesh);
     }
 
-    function buildGuardrails() {
-      const railHeight = 1.1;
-      const railGeo = new THREE.BufferGeometry();
+    function buildHeavyDutyBarricades() {
+      // Build 3D Solid Continuous Crash Barrier Walls along BOTH sides of the road!
+      const barrierHeight = 1.8;
+      const barrierThickness = 0.8;
+      const barGeo = new THREE.BufferGeometry();
       const vertices = [];
+      const uvs = [];
       const indices = [];
       let vertOffset = 0;
 
       for (let side = -1; side <= 1; side += 2) {
         for (let i = 0; i <= trackSegments; i++) {
           const s = trackSamples[i];
-          const dist = (trackWidth / 2 + 1.5) * side;
-          const basePt = s.pt.clone().add(s.binormal.clone().multiplyScalar(dist));
+          const innerDist = (trackWidth / 2 + 0.3) * side;
+          const outerDist = innerDist + barrierThickness * side;
 
-          vertices.push(basePt.x, basePt.y, basePt.z);
-          vertices.push(basePt.x, basePt.y + railHeight, basePt.z);
+          const pInnerBase = s.pt.clone().add(s.binormal.clone().multiplyScalar(innerDist));
+          const pInnerTop = pInnerBase.clone(); pInnerTop.y += barrierHeight;
+
+          const pOuterBase = s.pt.clone().add(s.binormal.clone().multiplyScalar(outerDist));
+          const pOuterTop = pOuterBase.clone(); pOuterTop.y += barrierHeight;
+
+          // 4 vertices per slice: InnerBase (0), InnerTop (1), OuterTop (2), OuterBase (3)
+          vertices.push(pInnerBase.x, pInnerBase.y, pInnerBase.z);
+          vertices.push(pInnerTop.x, pInnerTop.y, pInnerTop.z);
+          vertices.push(pOuterTop.x, pOuterTop.y, pOuterTop.z);
+          vertices.push(pOuterBase.x, pOuterBase.y, pOuterBase.z);
+
+          const vCoord = (i / trackSegments) * 120;
+          uvs.push(0, vCoord);
+          uvs.push(1, vCoord);
+          uvs.push(1, vCoord);
+          uvs.push(0, vCoord);
 
           if (i < trackSegments) {
-            const r1 = vertOffset + i * 2;
-            const r2 = vertOffset + (i + 1) * 2;
+            const cur = vertOffset + i * 4;
+            const nxt = vertOffset + (i + 1) * 4;
+
+            // Inner Face (faces the road)
+            indices.push(cur, nxt, cur + 1);
+            indices.push(cur + 1, nxt, nxt + 1);
+
+            // Top Cap (glowing top rail)
+            indices.push(cur + 1, nxt + 1, cur + 2);
+            indices.push(cur + 2, nxt + 1, nxt + 2);
+
+            // Outer Face
+            indices.push(cur + 2, nxt + 2, cur + 3);
+            indices.push(cur + 3, nxt + 2, nxt + 3);
+          }
+        }
+        vertOffset += (trackSegments + 1) * 4;
+      }
+
+      barGeo.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+      barGeo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+      barGeo.setIndex(indices);
+      barGeo.computeVertexNormals();
+
+      const barMat = new THREE.MeshStandardMaterial({
+        map: textureLib.barrierTexture,
+        roughness: 0.4,
+        metalness: 0.6,
+        side: THREE.DoubleSide
+      });
+      const barMesh = new THREE.Mesh(barGeo, barMat);
+      barMesh.castShadow = true;
+      barMesh.receiveShadow = true;
+      scene.add(barMesh);
+
+      // Glowing Neon Cyan Top Light Tube along both barriers
+      buildBarrierNeonTubes();
+    }
+
+    function buildBarrierNeonTubes() {
+      const tubeMat = new THREE.MeshStandardMaterial({
+        color: 0x00f0ff,
+        emissive: 0x00f0ff,
+        emissiveIntensity: 2.2,
+        roughness: 0.2
+      });
+
+      for (let side = -1; side <= 1; side += 2) {
+        const tubeGeo = new THREE.BufferGeometry();
+        const verts = [];
+        const indices = [];
+
+        for (let i = 0; i <= trackSegments; i++) {
+          const s = trackSamples[i];
+          const dist = (trackWidth / 2 + 0.3) * side;
+          const pt = s.pt.clone().add(s.binormal.clone().multiplyScalar(dist));
+          pt.y += 1.82;
+
+          verts.push(pt.x, pt.y, pt.z);
+          verts.push(pt.x, pt.y + 0.12, pt.z);
+
+          if (i < trackSegments) {
+            const r1 = i * 2;
+            const r2 = (i + 1) * 2;
             indices.push(r1, r2, r1 + 1);
             indices.push(r1 + 1, r2, r2 + 1);
           }
         }
-        vertOffset += (trackSegments + 1) * 2;
+        tubeGeo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+        tubeGeo.setIndex(indices);
+        tubeGeo.computeVertexNormals();
+
+        const tubeMesh = new THREE.Mesh(tubeGeo, tubeMat);
+        scene.add(tubeMesh);
       }
-
-      railGeo.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-      railGeo.setIndex(indices);
-      railGeo.computeVertexNormals();
-
-      const railMat = new THREE.MeshStandardMaterial({
-        color: 0x94a3b8,
-        metalness: 0.85,
-        roughness: 0.25,
-        side: THREE.DoubleSide
-      });
-      const railMesh = new THREE.Mesh(railGeo, railMat);
-      scene.add(railMesh);
     }
 
-    function buildStartFinishGantry() {
-      const startPt = trackCurve.getPointAt(0);
-      const tangent = trackCurve.getTangentAt(0);
-      const binormal = new THREE.Vector3().crossVectors(tangent, new THREE.Vector3(0, 1, 0)).normalize();
+    function buildTurnSigns() {
+      // 3D Neon Chevron Turn Boards placed along corner barricades
+      turnZones.forEach(zone => {
+        const signCount = 5;
+        const isRight = zone.dir === 'right';
+        const tex = isRight ? textureLib.chevronRight : textureLib.chevronLeft;
+        // Place signs on the OUTER barrier of the turn
+        const side = isRight ? -1 : 1; // Left wall for right turns, Right wall for left turns
 
+        for (let j = 0; j < signCount; j++) {
+          const tFrac = zone.tStart + (j / (signCount - 1)) * (zone.tEnd - zone.tStart);
+          const sample = trackSamples[Math.floor(tFrac * trackSegments) % trackSegments];
+
+          const signPos = sample.pt.clone().add(sample.binormal.clone().multiplyScalar((trackWidth / 2 + 0.35) * side));
+          signPos.y += 2.4; // Sits right on top of the barricade
+
+          const signGroup = new THREE.Group();
+
+          // Sign board
+          const boardGeo = new THREE.PlaneGeometry(5.2, 2.6);
+          const boardMat = new THREE.MeshStandardMaterial({
+            map: tex,
+            emissive: 0xffd700,
+            emissiveIntensity: 0.85,
+            side: THREE.DoubleSide
+          });
+          const board = new THREE.Mesh(boardGeo, boardMat);
+          signGroup.add(board);
+
+          // Support posts
+          const postGeo = new THREE.CylinderGeometry(0.08, 0.08, 1.2, 8);
+          const postMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.8 });
+          const postL = new THREE.Mesh(postGeo, postMat);
+          postL.position.set(-1.8, -1.0, -0.05);
+          const postR = new THREE.Mesh(postGeo, postMat);
+          postR.position.set(1.8, -1.0, -0.05);
+          signGroup.add(postL);
+          signGroup.add(postR);
+
+          signGroup.position.copy(signPos);
+
+          // Face oncoming traffic along tangent
+          const lookTarget = sample.pt.clone().sub(sample.tangent.clone().multiplyScalar(35));
+          lookTarget.y = signPos.y;
+          signGroup.lookAt(lookTarget);
+
+          scene.add(signGroup);
+        }
+      });
+    }
+
+    function buildTrackGantries() {
+      // 1. Start / Finish Gantry (t = 0)
+      const startPt = trackCurve.getPointAt(0);
+      const startTan = trackCurve.getTangentAt(0);
+      const startBin = new THREE.Vector3().crossVectors(startTan, new THREE.Vector3(0, 1, 0)).normalize();
+
+      const startGantry = createGantryArch(
+        startPt, startTan, startBin,
+        '★ ARIVU SUPER TURBO GRAND PRIX ★',
+        '#00f0ff',
+        true
+      );
+      scene.add(startGantry);
+
+      // Checkered Line Flat on Road (at y + 0.07)
+      const chkCanvas = document.createElement('canvas');
+      chkCanvas.width = 512;
+      chkCanvas.height = 128;
+      const cCtx = chkCanvas.getContext('2d');
+      for (let x = 0; x < 512; x += 32) {
+        for (let y = 0; y < 128; y += 32) {
+          cCtx.fillStyle = ((x / 32) + (y / 32)) % 2 === 0 ? '#ffffff' : '#111827';
+          cCtx.fillRect(x, y, 32, 32);
+        }
+      }
+      const chkTex = new THREE.CanvasTexture(chkCanvas);
+      const chkGeo = new THREE.PlaneGeometry(trackWidth - 1, 4.5);
+      const chkMat = new THREE.MeshBasicMaterial({ map: chkTex, side: THREE.DoubleSide });
+      const chkMesh = new THREE.Mesh(chkGeo, chkMat);
+      chkMesh.position.copy(startPt);
+      chkMesh.position.y += 0.07;
+      chkMesh.rotation.x = -Math.PI / 2;
+      chkMesh.rotation.z = -Math.atan2(startTan.x, -startTan.z);
+      scene.add(chkMesh);
+
+      // 2. Turn Warning Overhead Gantries
+      const warningGantries = [
+        { t: 0.07, msg: '⚠️ SHARP RIGHT TURN 100M >>>' },
+        { t: 0.38, msg: '⚠️ S-CHICANE AHEAD - DRIFT! ⚡' },
+        { t: 0.49, msg: '⚠️ HAIRPIN CORNER - HARD BRAKE! >>>' },
+        { t: 0.66, msg: '⚠️ FAST LEFT BANKING TURN <<<' }
+      ];
+
+      warningGantries.forEach(wg => {
+        const pt = trackCurve.getPointAt(wg.t);
+        const tan = trackCurve.getTangentAt(wg.t);
+        const bin = new THREE.Vector3().crossVectors(tan, new THREE.Vector3(0, 1, 0)).normalize();
+        const arch = createGantryArch(pt, tan, bin, wg.msg, '#ffd700', false);
+        scene.add(arch);
+      });
+    }
+
+    function createGantryArch(pt, tangent, binormal, text, accentColor, isCheckered = false) {
       const gantryGroup = new THREE.Group();
 
       const postGeo = new THREE.CylinderGeometry(0.5, 0.5, 11, 16);
       const postMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8 });
 
       const postL = new THREE.Mesh(postGeo, postMat);
-      postL.position.copy(startPt).sub(binormal.clone().multiplyScalar(trackWidth / 2 + 3.5));
+      postL.position.copy(pt).sub(binormal.clone().multiplyScalar(trackWidth / 2 + 3.2));
       postL.position.y += 5.5;
 
       const postR = new THREE.Mesh(postGeo, postMat);
-      postR.position.copy(startPt).add(binormal.clone().multiplyScalar(trackWidth / 2 + 3.5));
+      postR.position.copy(pt).add(binormal.clone().multiplyScalar(trackWidth / 2 + 3.2));
       postR.position.y += 5.5;
 
       const beamGeo = new THREE.BoxGeometry(trackWidth + 9, 2.8, 2.2);
       const beamMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.9 });
       const beam = new THREE.Mesh(beamGeo, beamMat);
-      beam.position.copy(startPt);
+      beam.position.copy(pt);
       beam.position.y += 10.5;
       beam.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), binormal);
 
@@ -1637,17 +1919,25 @@
       bannerCanvas.width = 1024;
       bannerCanvas.height = 128;
       const bCtx = bannerCanvas.getContext('2d');
-      bCtx.fillStyle = '#000';
+      bCtx.fillStyle = '#080c18';
       bCtx.fillRect(0, 0, 1024, 128);
-      for (let x = 0; x < 1024; x += 32) {
-        bCtx.fillStyle = (x / 32) % 2 === 0 ? '#fff' : '#ff0055';
-        bCtx.fillRect(x, 0, 32, 24);
-        bCtx.fillRect(x, 104, 32, 24);
+
+      if (isCheckered) {
+        for (let x = 0; x < 1024; x += 32) {
+          bCtx.fillStyle = (x / 32) % 2 === 0 ? '#fff' : '#ff0055';
+          bCtx.fillRect(x, 0, 32, 24);
+          bCtx.fillRect(x, 104, 32, 24);
+        }
+      } else {
+        bCtx.fillStyle = accentColor;
+        bCtx.fillRect(0, 0, 1024, 10);
+        bCtx.fillRect(0, 118, 1024, 10);
       }
-      bCtx.fillStyle = '#00f0ff';
+
+      bCtx.fillStyle = accentColor;
       bCtx.font = '900 52px "Segoe UI", sans-serif';
       bCtx.textAlign = 'center';
-      bCtx.fillText('★ ARIVU SUPER TURBO GRAND PRIX ★', 512, 78);
+      bCtx.fillText(text, 512, 78);
 
       const bannerTex = new THREE.CanvasTexture(bannerCanvas);
       const signGeo = new THREE.PlaneGeometry(trackWidth + 7, 2.4);
@@ -1661,52 +1951,11 @@
       gantryGroup.add(postR);
       gantryGroup.add(beam);
       gantryGroup.add(signMesh);
-      scene.add(gantryGroup);
-
-      // Checkered Line on Asphalt
-      const chkCanvas = document.createElement('canvas');
-      chkCanvas.width = 512;
-      chkCanvas.height = 128;
-      const cCtx = chkCanvas.getContext('2d');
-      for (let x = 0; x < 512; x += 32) {
-        for (let y = 0; y < 128; y += 32) {
-          cCtx.fillStyle = ((x / 32) + (y / 32)) % 2 === 0 ? '#ffffff' : '#111827';
-          cCtx.fillRect(x, y, 32, 32);
-        }
-      }
-      const chkTex = new THREE.CanvasTexture(chkCanvas);
-      
-      const chkMat = new THREE.MeshBasicMaterial({ map: chkTex, side: THREE.DoubleSide });
-      // Checkered Line flat on road
-      const chkGeo = new THREE.PlaneGeometry(trackWidth, 4);
-      const chkMesh = new THREE.Mesh(chkGeo, chkMat);
-      chkMesh.position.copy(startPt);
-      chkMesh.position.y += 0.08;
-      chkMesh.rotation.x = -Math.PI / 2;
-      chkMesh.rotation.z = -Math.atan2(tangent.x, -tangent.z);
-      scene.add(chkMesh);
-    }
-
-    function buildTrackArches() {
-      const archPoints = [0.28, 0.58, 0.82];
-      archPoints.forEach(t => {
-        const pt = trackCurve.getPointAt(t);
-        const tangent = trackCurve.getTangentAt(t);
-
-        const archGeo = new THREE.TorusGeometry(trackWidth * 0.65, 0.6, 8, 24, Math.PI);
-        const archMat = new THREE.MeshStandardMaterial({
-          color: 0x00f0ff,
-          emissive: 0x00f0ff,
-          emissiveIntensity: 1.0
-        });
-        const archMesh = new THREE.Mesh(archGeo, archMat);
-        archMesh.position.copy(pt);
-        archMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), tangent);
-        scene.add(archMesh);
-      });
+      return gantryGroup;
     }
 
     function buildRoadsideBillboards() {
+      // 10 Giant Billboards with Arivu positioned SAFELY BEHIND the 3D barricades!
       const billboardPositions = [
         0.05, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.95
       ];
@@ -1723,12 +1972,13 @@
         const binormal = new THREE.Vector3().crossVectors(tangent, new THREE.Vector3(0, 1, 0)).normalize();
 
         const side = (i % 2 === 0) ? 1 : -1;
-        const bPos = pt.clone().add(binormal.clone().multiplyScalar((trackWidth / 2 + 13) * side));
-        bPos.y += 8.5;
+        // Positioned 15m away, firmly behind the 12m barricade!
+        const bPos = pt.clone().add(binormal.clone().multiplyScalar((trackWidth / 2 + 6.5) * side));
+        bPos.y += 9.5;
 
         const bGroup = new THREE.Group();
 
-        const poleGeo = new THREE.CylinderGeometry(0.45, 0.45, 17, 12);
+        const poleGeo = new THREE.CylinderGeometry(0.45, 0.45, 19, 12);
         const poleMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.8 });
         const pole1 = new THREE.Mesh(poleGeo, poleMat);
         pole1.position.set(-6, -2, 0);
@@ -1758,7 +2008,24 @@
         bGroup.lookAt(lookTarget);
 
         scene.add(bGroup);
+
+        // Add 3D Tire Barrier Stacks in front of each billboard location!
+        buildTireStack(pt.clone().add(binormal.clone().multiplyScalar((trackWidth / 2 + 1.2) * side)));
       });
+    }
+
+    function buildTireStack(pos) {
+      const tireGeo = new THREE.CylinderGeometry(0.65, 0.65, 0.45, 12);
+      const redMat = new THREE.MeshStandardMaterial({ color: 0xff0044, roughness: 0.7 });
+      const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.7 });
+
+      for (let layer = 0; layer < 3; layer++) {
+        const mat = layer % 2 === 0 ? redMat : whiteMat;
+        const tire = new THREE.Mesh(tireGeo, mat);
+        tire.position.copy(pos);
+        tire.position.y += 0.25 + layer * 0.45;
+        scene.add(tire);
+      }
     }
 
     function buildTerrain() {
@@ -1791,7 +2058,7 @@
         const pt = trackCurve.getPointAt(t);
         const binormal = trackSamples[Math.floor(t * trackSegments)].binormal;
         const side = (i % 2 === 0) ? 1 : -1;
-        const pPos = pt.clone().add(binormal.clone().multiplyScalar((trackWidth / 2 + 7 + (i % 3) * 3) * side));
+        const pPos = pt.clone().add(binormal.clone().multiplyScalar((trackWidth / 2 + 8 + (i % 3) * 3) * side));
 
         const treeGroup = new THREE.Group();
         const trunk = new THREE.Mesh(palmTrunkGeo, palmTrunkMat);
@@ -1808,10 +2075,15 @@
     }
 
     /* =========================================================================
-       CAR BUILDER: 3D CYBER SPORTS RACER (With Arivu Avatar & Decal)
+       CAR BUILDER: 3D CYBER SPORTS RACER (Anti-Dipping Suspension Geometry)
        ========================================================================= */
     function createCarMesh(colorHex = 0x00f0ff, isPlayer = false) {
       const car = new THREE.Group();
+
+      // Separate Body Group for Pitch & Roll (Wheels stay planted on asphalt!)
+      const bodyGroup = new THREE.Group();
+      car.add(bodyGroup);
+      car.bodyGroup = bodyGroup;
 
       const bodyMat = new THREE.MeshStandardMaterial({
         color: colorHex,
@@ -1832,26 +2104,26 @@
         opacity: 0.75
       });
 
-      // Lower Chassis
-      const chassisGeo = new THREE.BoxGeometry(2.2, 0.45, 4.4);
+      // Chassis: elevated so bottom is at local y = 0.22, well above tires
+      const chassisGeo = new THREE.BoxGeometry(2.2, 0.46, 4.4);
       const chassis = new THREE.Mesh(chassisGeo, bodyMat);
-      chassis.position.y = 0.45;
+      chassis.position.y = 0.46;
       chassis.castShadow = true;
-      car.add(chassis);
+      bodyGroup.add(chassis);
 
-      // Front Aerodynamic Nose
+      // Front Nose
       const noseGeo = new THREE.BoxGeometry(2.0, 0.28, 1.2);
       const nose = new THREE.Mesh(noseGeo, bodyMat);
-      nose.position.set(0, 0.35, -2.4);
-      car.add(nose);
+      nose.position.set(0, 0.36, -2.4);
+      bodyGroup.add(nose);
 
       // Cabin Canopy Glass
       const cabinGeo = new THREE.BoxGeometry(1.65, 0.55, 2.2);
       const cabin = new THREE.Mesh(cabinGeo, glassMat);
       cabin.position.set(0, 0.88, 0.1);
-      car.add(cabin);
+      bodyGroup.add(cabin);
 
-      // Hood Decal Area (Displays Arivu's photo on the front hood!)
+      // Hood Decal Area (Arivu!)
       let decalMesh = null;
       if (isPlayer) {
         const decalGeo = new THREE.PlaneGeometry(1.6, 1.6);
@@ -1861,8 +2133,8 @@
         });
         decalMesh = new THREE.Mesh(decalGeo, decalMat);
         decalMesh.rotation.x = -Math.PI / 2;
-        decalMesh.position.set(0, 0.69, -1.2);
-        car.add(decalMesh);
+        decalMesh.position.set(0, 0.70, -1.2);
+        bodyGroup.add(decalMesh);
       }
 
       // Driver avatar in cockpit (Arivu!)
@@ -1870,14 +2142,12 @@
       if (isPlayer) {
         const driverGroup = new THREE.Group();
 
-        // Torso with black shirt
         const torsoGeo = new THREE.BoxGeometry(0.75, 0.65, 0.45);
         const torsoMat = new THREE.MeshStandardMaterial({ color: 0x111827 });
         const torso = new THREE.Mesh(torsoGeo, torsoMat);
         torso.position.set(0, 0.75, 0.3);
         driverGroup.add(torso);
 
-        // Driver Head: 3D head cube with Arivu's face on BOTH front and rear faces!
         const faceMat = new THREE.MeshStandardMaterial({
           map: textureLib.driverFace,
           roughness: 0.5
@@ -1887,14 +2157,12 @@
           roughness: 0.8
         });
 
-        // Box faces: [right, left, top, bottom, front, back]
         const headMaterials = [hairMat, hairMat, hairMat, hairMat, faceMat, faceMat];
         const headGeo = new THREE.BoxGeometry(0.55, 0.55, 0.55);
         driverHead = new THREE.Mesh(headGeo, headMaterials);
         driverHead.position.set(0, 1.28, 0.3);
         driverGroup.add(driverHead);
 
-        // Mini steering wheel
         const wheelRingGeo = new THREE.TorusGeometry(0.22, 0.04, 8, 16);
         const wheelRingMat = new THREE.MeshStandardMaterial({ color: 0x334155 });
         const stWheel = new THREE.Mesh(wheelRingGeo, wheelRingMat);
@@ -1902,11 +2170,11 @@
         stWheel.position.set(0, 0.88, -0.05);
         driverGroup.add(stWheel);
 
-        car.add(driverGroup);
+        bodyGroup.add(driverGroup);
         car.driverHead = driverHead;
       }
 
-      // Carbon fiber rear spoiler
+      // Rear Spoiler
       const wingGeo = new THREE.BoxGeometry(2.2, 0.08, 0.45);
       const wing = new THREE.Mesh(wingGeo, darkMat);
       wing.position.set(0, 1.18, 2.0);
@@ -1916,11 +2184,11 @@
       strutL.position.set(-0.65, 0.88, 1.95);
       const strutR = new THREE.Mesh(strutGeo, darkMat);
       strutR.position.set(0.65, 0.88, 1.95);
-      car.add(wing);
-      car.add(strutL);
-      car.add(strutR);
+      bodyGroup.add(wing);
+      bodyGroup.add(strutL);
+      bodyGroup.add(strutR);
 
-      // Front Headlights
+      // Headlights
       const lightGeo = new THREE.BoxGeometry(0.5, 0.16, 0.1);
       const lightMat = new THREE.MeshStandardMaterial({
         color: 0x00f0ff,
@@ -1931,10 +2199,10 @@
       lightL.position.set(-0.7, 0.45, -2.95);
       const lightR = new THREE.Mesh(lightGeo, lightMat);
       lightR.position.set(0.7, 0.45, -2.95);
-      car.add(lightL);
-      car.add(lightR);
+      bodyGroup.add(lightL);
+      bodyGroup.add(lightR);
 
-      // Rear Brake Lights
+      // Brake Lights
       const brakeGeo = new THREE.BoxGeometry(1.9, 0.14, 0.08);
       const brakeMat = new THREE.MeshStandardMaterial({
         color: 0xff0044,
@@ -1943,7 +2211,7 @@
       });
       const brakeMesh = new THREE.Mesh(brakeGeo, brakeMat);
       brakeMesh.position.set(0, 0.55, 2.22);
-      car.add(brakeMesh);
+      bodyGroup.add(brakeMesh);
       car.brakeMesh = brakeMesh;
 
       // Exhaust Pipes
@@ -1955,10 +2223,10 @@
       const exhR = new THREE.Mesh(exhaustGeo, exhaustMat);
       exhR.rotation.x = Math.PI / 2;
       exhR.position.set(0.45, 0.3, 2.2);
-      car.add(exhL);
-      car.add(exhR);
+      bodyGroup.add(exhL);
+      bodyGroup.add(exhR);
 
-      // Underglow Neon Glow
+      // Underglow Neon
       const underglowGeo = new THREE.PlaneGeometry(2.0, 3.8);
       const underglowMat = new THREE.MeshBasicMaterial({
         color: colorHex,
@@ -1968,35 +2236,34 @@
       });
       const underglow = new THREE.Mesh(underglowGeo, underglowMat);
       underglow.rotation.x = -Math.PI / 2;
-      underglow.position.y = 0.08;
-      car.add(underglow);
+      underglow.position.y = 0.10;
+      bodyGroup.add(underglow);
 
       if (isPlayer) {
-        // Dynamic Player Point Lights
         const underglowLight = new THREE.PointLight(0x00f0ff, 2.2, 7);
         underglowLight.position.set(0, 0.3, 0);
-        car.add(underglowLight);
+        bodyGroup.add(underglowLight);
 
         const headSpotL = new THREE.SpotLight(0x00f0ff, 3.0, 45, Math.PI / 5, 0.4);
         headSpotL.position.set(-0.7, 0.5, -2.8);
         headSpotL.target.position.set(-0.7, 0.2, -20);
-        car.add(headSpotL);
-        car.add(headSpotL.target);
+        bodyGroup.add(headSpotL);
+        bodyGroup.add(headSpotL.target);
 
         const headSpotR = new THREE.SpotLight(0x00f0ff, 3.0, 45, Math.PI / 5, 0.4);
         headSpotR.position.set(0.7, 0.5, -2.8);
         headSpotR.target.position.set(0.7, 0.2, -20);
-        car.add(headSpotR);
-        car.add(headSpotR.target);
+        bodyGroup.add(headSpotR);
+        bodyGroup.add(headSpotR.target);
       }
 
-      // Wheels
+      // Wheels: Center is at y = 0.42. Radius is 0.42. Bottom touches EXACTLY at local y = 0.00!
       const wheels = [];
       const wheelPos = [
-        { x: -1.1, y: 0.4, z: -1.35, isFront: true },
-        { x: 1.1, y: 0.4, z: -1.35, isFront: true },
-        { x: -1.1, y: 0.45, z: 1.35, isFront: false },
-        { x: 1.1, y: 0.45, z: 1.35, isFront: false }
+        { x: -1.1, y: 0.42, z: -1.35, isFront: true },
+        { x: 1.1, y: 0.42, z: -1.35, isFront: true },
+        { x: -1.1, y: 0.42, z: 1.35, isFront: false },
+        { x: 1.1, y: 0.42, z: 1.35, isFront: false }
       ];
 
       const tireGeo = new THREE.CylinderGeometry(0.42, 0.42, 0.34, 18);
@@ -2025,12 +2292,12 @@
     }
 
     /* =========================================================================
-       PARTICLE SYSTEM (Nitro Flame, Drift Smoke, Sparks)
+       PARTICLE SYSTEM
        ========================================================================= */
     class ParticleManager {
       constructor() {
         this.particles = [];
-        this.maxParticles = 180;
+        this.maxParticles = 200;
 
         const pGeo = new THREE.BufferGeometry();
         this.positions = new Float32Array(this.maxParticles * 3);
@@ -2215,6 +2482,7 @@
         { name: 'Volt', color: 0x06d6a0, startT: 0.01, lane: 2.5, baseSpeed: 48 }
       ];
 
+      rivals.length = 0;
       rivalData.forEach(data => {
         const mesh = createCarMesh(data.color, false);
         scene.add(mesh);
@@ -2238,11 +2506,12 @@
         r.laneTimer -= dt;
         if (r.laneTimer <= 0) {
           r.laneTimer = 3 + Math.random() * 4;
-          r.targetLane = (Math.random() - 0.5) * (trackWidth - 8);
+          r.targetLane = (Math.random() - 0.5) * (maxRoadLateral * 1.6);
           r.speed = r.baseSpeed + (Math.random() - 0.5) * 6;
         }
 
         r.lane += (r.targetLane - r.lane) * dt * 1.5;
+        r.lane = Math.max(-maxRoadLateral + 1, Math.min(maxRoadLateral - 1, r.lane));
 
         const deltaT = (r.speed * dt) / trackLength;
         const prevT = r.t;
@@ -2257,6 +2526,7 @@
         const binormal = new THREE.Vector3().crossVectors(tangent, new THREE.Vector3(0, 1, 0)).normalize();
 
         const carPos = pt.clone().add(binormal.clone().multiplyScalar(r.lane));
+        carPos.y = pt.y + 0.06; // EXACT road height
         r.mesh.position.copy(carPos);
         r.mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, -1), tangent);
 
@@ -2282,10 +2552,11 @@
     }
 
     /* =========================================================================
-       PLAYER VEHICLE & PHYSICS ENGINE
+       PLAYER VEHICLE & PHYSICS ENGINE (Unbreakable Barricade Enforcement)
        ========================================================================= */
     const playerCar = {
       group: null,
+      bodyGroup: null,
       decalMesh: null,
       driverHead: null,
       wheels: [],
@@ -2295,7 +2566,7 @@
       maxSpeed: 64,      // ~230 km/h standard
       nitroMaxSpeed: 86, // ~310 km/h on nitro
       accel: 26,
-      brakePower: 40,
+      brakePower: 42,
       friction: 0.985,
       steerAngle: 0,
       heading: 0,
@@ -2306,20 +2577,22 @@
       nitroActive: false,
       rpm: 1000,
       gear: 1,
-      // Progression
+      // Track Progress
       trackT: 0,
       lap: 1,
-      totalDistance: 0
+      totalDistance: 0,
+      closestIdx: 0
     };
 
     function initPlayerVehicle() {
       playerCar.group = createCarMesh(0x00f0ff, true);
+      playerCar.bodyGroup = playerCar.group.bodyGroup;
       scene.add(playerCar.group);
 
       const startPt = trackCurve.getPointAt(0);
       const tangent = trackCurve.getTangentAt(0);
       playerCar.group.position.copy(startPt);
-      playerCar.group.position.y = 0;
+      playerCar.group.position.y = startPt.y + 0.06;
       playerCar.heading = Math.atan2(-tangent.x, -tangent.z);
       playerCar.group.rotation.y = playerCar.heading;
     }
@@ -2440,6 +2713,7 @@
         document.getElementById('drift-alert').style.display = 'none';
       }
 
+      // Movement Vector
       const moveAngle = p.heading + p.driftAngle;
       const forwardX = -Math.sin(moveAngle);
       const forwardZ = -Math.cos(moveAngle);
@@ -2448,8 +2722,11 @@
       p.group.position.z += forwardZ * p.speed * dt;
       p.group.rotation.y = p.heading + p.driftAngle;
 
-      p.group.rotation.x = (keys.up ? 0.03 : 0) - (keys.down ? 0.05 : 0);
-      p.group.rotation.z = -p.steerAngle * (p.speed / p.maxSpeed) * 0.12;
+      // Suspension Tilt applied ONLY to bodyGroup (Wheels never dip into road!)
+      if (p.bodyGroup) {
+        p.bodyGroup.rotation.x = (keys.up ? 0.03 : 0) - (keys.down ? 0.06 : 0);
+        p.bodyGroup.rotation.z = -p.steerAngle * (p.speed / p.maxSpeed) * 0.14;
+      }
 
       if (p.driverHead) {
         p.driverHead.rotation.y = -p.steerAngle * 0.4;
@@ -2467,47 +2744,73 @@
         p.brakeMesh.material.emissiveIntensity = keys.down ? 3.5 : 1.2;
       }
 
-      checkTrackBoundary(p);
+      // IMPASSABLE 3D Barricade Collision & Surface Height Lock
+      enforceTrackBarricades(p);
+
       emitVehicleParticles(p, dt);
       calculateRpmAndGear(p, throttle);
       sound.updateEngine(p.rpm / 8000, Math.abs(throttle), Math.abs(p.speed) / p.maxSpeed);
       updatePlayerRaceProgress(p);
+      updateTurnWarningHUD(p);
     }
 
-    function checkTrackBoundary(p) {
+    function enforceTrackBarricades(p) {
+      // Find closest track point reliably (local window search around last index to prevent cross-track jumping)
+      let startSearch = Math.max(0, p.closestIdx - 40);
+      let endSearch = Math.min(trackSegments, p.closestIdx + 40);
+      if (p.closestIdx < 40 || p.closestIdx > trackSegments - 40) {
+        startSearch = 0;
+        endSearch = trackSegments;
+      }
+
       let minDist = Infinity;
-      let closestIdx = 0;
+      let bestIdx = p.closestIdx;
       const pPos = p.group.position;
 
-      for (let i = 0; i < trackSegments; i += 4) {
+      for (let i = startSearch; i <= endSearch; i += 2) {
         const d = pPos.distanceTo(trackSamples[i].pt);
         if (d < minDist) {
           minDist = d;
-          closestIdx = i;
+          bestIdx = i;
         }
       }
+      p.closestIdx = bestIdx;
+      const sample = trackSamples[bestIdx];
 
-      const sample = trackSamples[closestIdx];
+      // LOCK CAR HEIGHT: Exactly on the road surface (y + 0.06) - NO DIPPING!
+      pPos.y = sample.pt.y + 0.06;
+
+      // Project onto track cross section
       const toCar = pPos.clone().sub(sample.pt);
       const lateralDist = toCar.dot(sample.binormal);
+      const alongDist = toCar.dot(sample.tangent);
 
-      p.group.position.y = sample.pt.y;
-
-      const roadLimit = trackWidth / 2 - 0.5;
-      if (Math.abs(lateralDist) > roadLimit) {
+      // HARD IMPASSABLE BARRICADE CLAMP
+      if (Math.abs(lateralDist) > maxRoadLateral) {
         sound.playBump();
-        p.speed = Math.max(-5, p.speed * 0.88);
-        const overDist = Math.abs(lateralDist) - roadLimit;
-        const pushDir = lateralDist > 0 ? -1 : 1;
-        pPos.addScaledVector(sample.binormal, pushDir * (overDist + 0.3));
+        triggerCameraShake(0.3);
 
-        triggerCameraShake(0.25);
-        for (let k = 0; k < 5; k++) {
+        // Clamp position firmly to the inside face of the barricade
+        const clampedLateral = Math.sign(lateralDist) * maxRoadLateral;
+        pPos.copy(sample.pt)
+          .addScaledVector(sample.binormal, clampedLateral)
+          .addScaledVector(sample.tangent, alongDist);
+        pPos.y = sample.pt.y + 0.06;
+
+        // Speed bounce penalty
+        p.speed = Math.max(-6, p.speed * 0.82);
+
+        // Heading deflection: Realign vehicle parallel to track tangent so it never gets stuck
+        const tangentHeading = Math.atan2(-sample.tangent.x, -sample.tangent.z);
+        p.heading = THREE.MathUtils.lerp(p.heading, tangentHeading, 0.45);
+
+        // Wall scrape sparks
+        for (let k = 0; k < 8; k++) {
           particles.emit(
             pPos.clone().add(new THREE.Vector3((Math.random() - 0.5) * 1.5, 0.5, (Math.random() - 0.5) * 1.5)),
-            new THREE.Vector3((Math.random() - 0.5) * 8, Math.random() * 6, (Math.random() - 0.5) * 8),
-            new THREE.Color(1, 0.85, 0.3),
-            0.25
+            new THREE.Vector3((Math.random() - 0.5) * 10, Math.random() * 8, (Math.random() - 0.5) * 10),
+            new THREE.Color(1, 0.85, 0.2),
+            0.3
           );
         }
       }
@@ -2554,24 +2857,51 @@
     }
 
     function updatePlayerRaceProgress(p) {
-      let minDist = Infinity;
-      let closestIdx = 0;
-      for (let i = 0; i < trackSegments; i += 2) {
-        const d = p.group.position.distanceTo(trackSamples[i].pt);
-        if (d < minDist) {
-          minDist = d;
-          closestIdx = i;
-        }
-      }
-
       const prevT = p.trackT;
-      p.trackT = closestIdx / trackSegments;
+      p.trackT = p.closestIdx / trackSegments;
 
       if (prevT > 0.85 && p.trackT < 0.15) {
         p.lap++;
         onLapComplete(p.lap);
       }
       p.totalDistance = (p.lap - 1) * trackLength + p.trackT * trackLength;
+    }
+
+    function updateTurnWarningHUD(p) {
+      const alertEl = document.getElementById('hud-turn-alert');
+      const textEl = document.getElementById('turn-warning-text');
+      const leftArrow = document.getElementById('turn-arrow-left');
+      const rightArrow = document.getElementById('turn-arrow-right');
+
+      let activeZone = null;
+      let distMeters = 0;
+
+      for (let z of turnZones) {
+        // Distance along track to zone apex
+        let diffT = z.tApex - p.trackT;
+        if (diffT < 0) diffT += 1.0;
+        const dist = diffT * trackLength;
+
+        if (dist > 0 && dist < z.warningDist) {
+          activeZone = z;
+          distMeters = Math.floor(dist);
+          break;
+        }
+      }
+
+      if (activeZone) {
+        alertEl.style.display = 'flex';
+        textEl.innerText = `${activeZone.name} IN ${distMeters}M`;
+        if (activeZone.dir === 'right') {
+          leftArrow.style.display = 'none';
+          rightArrow.style.display = 'inline';
+        } else {
+          leftArrow.style.display = 'inline';
+          rightArrow.style.display = 'none';
+        }
+      } else {
+        alertEl.style.display = 'none';
+      }
     }
 
     /* =========================================================================
@@ -2692,14 +3022,17 @@
       playerCar.nitro = 100;
       playerCar.lap = 1;
       playerCar.trackT = 0;
+      playerCar.closestIdx = 0;
       playerCar.totalDistance = 0;
 
       const startPt = trackCurve.getPointAt(0);
       const tangent = trackCurve.getTangentAt(0);
       playerCar.group.position.copy(startPt);
+      playerCar.group.position.y = startPt.y + 0.06;
       playerCar.heading = Math.atan2(-tangent.x, -tangent.z);
       playerCar.group.rotation.y = playerCar.heading;
 
+      initRivals();
       showToast('🏁 GREEN LIGHT! GO ARIVU!', 'boost');
     }
 
